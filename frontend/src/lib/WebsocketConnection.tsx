@@ -35,7 +35,7 @@ const LOG = "WebsocketConnection"
 /**
  * The path where we should ping (via HTTP) to see if the server is up.
  */
-const SERVER_PING_PATH = "healthz"
+const SERVER_PING_PATH = "healthk"
 
 /**
  * The path of the server's websocket endpoint.
@@ -306,8 +306,8 @@ export class WebsocketConnection {
 
     throw new Error(
       "Unsupported state transition.\n" +
-        `State: ${this.state}\n` +
-        `Event: ${event}`
+      `State: ${this.state}\n` +
+      `Event: ${event}`
     )
   }
 
@@ -516,7 +516,7 @@ export function doHealthPing(
   let tryTimestamp = Date.now()
 
   // Hoist the connect() declaration.
-  let connect = (): void => {}
+  let connect = (): void => { }
 
   const retryImmediately = (): void => {
     uriNumber++
@@ -608,7 +608,7 @@ export function doHealthPing(
           }
           return retry(
             `Connection failed with status ${status}, ` +
-              `and response "${data}".`
+            `and response "${data}".`
           )
         }
         if (error.request) {

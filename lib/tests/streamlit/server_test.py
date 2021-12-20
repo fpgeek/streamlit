@@ -76,10 +76,12 @@ class ServerTest(ServerTestCase):
         """Test that we can start and stop the server."""
         with self._patch_report_session():
             yield self.start_server_loop()
-            self.assertEqual(State.WAITING_FOR_FIRST_BROWSER, self.server._state)
+            self.assertEqual(State.WAITING_FOR_FIRST_BROWSER,
+                             self.server._state)
 
             yield self.ws_connect()
-            self.assertEqual(State.ONE_OR_MORE_BROWSERS_CONNECTED, self.server._state)
+            self.assertEqual(
+                State.ONE_OR_MORE_BROWSERS_CONNECTED, self.server._state)
 
             self.server.stop()
             self.assertEqual(State.STOPPING, self.server._state)
@@ -167,7 +169,8 @@ class ServerTest(ServerTestCase):
     @tornado.testing.gen_test
     def test_websocket_compression_disabled(self):
         with self._patch_report_session():
-            config._set_option("server.enableWebsocketCompression", False, "test")
+            config._set_option(
+                "server.enableWebsocketCompression", False, "test")
             yield self.start_server_loop()
 
             # Connect to the server, and explicitly request compression.
@@ -177,7 +180,8 @@ class ServerTest(ServerTestCase):
 
             # Ensure that the "Sec-Websocket-Extensions" header is not
             # present in the response from the server.
-            self.assertIsNone(ws_client.headers.get("Sec-Websocket-Extensions"))
+            self.assertIsNone(ws_client.headers.get(
+                "Sec-Websocket-Extensions"))
 
     @tornado.testing.gen_test
     def test_forwardmsg_hashing(self):
@@ -214,7 +218,8 @@ class ServerTest(ServerTestCase):
             ws_client = yield self.ws_connect()
 
             session = list(self.server._session_info_by_id.values())[0].session
-            self.assertEqual(self.server.get_session_by_id(session.id), session)
+            self.assertEqual(
+                self.server.get_session_by_id(session.id), session)
 
     @tornado.testing.gen_test
     def test_forwardmsg_cacheable_flag(self):
@@ -381,7 +386,8 @@ class ServerUtilsTest(unittest.TestCase):
             "streamlit.server.server_util.config.get_option",
             side_effect=[True, "browser.server.address"],
         ):
-            self.assertTrue(is_url_from_allowed_origins("browser.server.address"))
+            self.assertTrue(is_url_from_allowed_origins(
+                "browser.server.address"))
 
     def test_is_url_from_allowed_origins_s3_url(self):
         with patch(
@@ -414,11 +420,12 @@ class ServerUtilsTest(unittest.TestCase):
         self.assertEqual(deserialized_msg.metadata, large_msg.metadata)
         self.assertNotEqual(deserialized_msg, large_msg)
         expected = "Data of size 60.0MB exceeds write limit of 50.0MB"
-        self.assertEqual(deserialized_msg.delta.new_element.exception.message, expected)
+        self.assertEqual(
+            deserialized_msg.delta.new_element.exception.message, expected)
 
 
 class HealthHandlerTest(tornado.testing.AsyncHTTPTestCase):
-    """Tests the /healthz endpoint"""
+    """Tests the /healthk endpoint"""
 
     def setUp(self):
         super(HealthHandlerTest, self).setUp()
@@ -429,28 +436,28 @@ class HealthHandlerTest(tornado.testing.AsyncHTTPTestCase):
 
     def get_app(self):
         return tornado.web.Application(
-            [(r"/healthz", HealthHandler, dict(callback=self.is_healthy))]
+            [(r"/healthk", HealthHandler, dict(callback=self.is_healthy))]
         )
 
-    def test_healthz(self):
-        response = self.fetch("/healthz")
+    def test_healthk(self):
+        response = self.fetch("/healthk")
         self.assertEqual(200, response.code)
         self.assertEqual(b"ok", response.body)
 
         self._is_healthy = False
-        response = self.fetch("/healthz")
+        response = self.fetch("/healthk")
         self.assertEqual(503, response.code)
 
-    def test_healthz_without_csrf(self):
+    def test_healthk_without_csrf(self):
         config._set_option("server.enableXsrfProtection", False, "test")
-        response = self.fetch("/healthz")
+        response = self.fetch("/healthk")
         self.assertEqual(200, response.code)
         self.assertEqual(b"ok", response.body)
         self.assertNotIn("Set-Cookie", response.headers)
 
-    def test_healthz_with_csrf(self):
+    def test_healthk_with_csrf(self):
         config._set_option("server.enableXsrfProtection", True, "test")
-        response = self.fetch("/healthz")
+        response = self.fetch("/healthk")
         self.assertEqual(200, response.code)
         self.assertEqual(b"ok", response.body)
         self.assertIn("Set-Cookie", response.headers)
@@ -464,7 +471,8 @@ class PortRotateAHundredTest(unittest.TestCase):
         httpserver = mock.MagicMock()
 
         httpserver.listen = mock.Mock()
-        httpserver.listen.side_effect = OSError(errno.EADDRINUSE, "test", "asd")
+        httpserver.listen.side_effect = OSError(
+            errno.EADDRINUSE, "test", "asd")
 
         return httpserver
 
@@ -479,7 +487,8 @@ class PortRotateAHundredTest(unittest.TestCase):
                 start_listening(app)
                 self.assertEqual(pytest_wrapped_e.type, SystemExit)
                 self.assertEqual(pytest_wrapped_e.value.code, errno.EADDRINUSE)
-                self.assertEqual(mock_server.listen.call_count, MAX_PORT_SEARCH_RETRIES)
+                self.assertEqual(mock_server.listen.call_count,
+                                 MAX_PORT_SEARCH_RETRIES)
 
 
 class PortRotateOneTest(unittest.TestCase):
@@ -492,7 +501,8 @@ class PortRotateOneTest(unittest.TestCase):
         httpserver = mock.MagicMock()
 
         httpserver.listen = mock.Mock()
-        httpserver.listen.side_effect = OSError(errno.EADDRINUSE, "test", "asd")
+        httpserver.listen.side_effect = OSError(
+            errno.EADDRINUSE, "test", "asd")
 
         return httpserver
 
@@ -660,7 +670,8 @@ class ScriptCheckEndpointExistsTest(tornado.testing.AsyncHTTPTestCase):
         super().setUp()
 
     def tearDown(self):
-        config._set_option("server.scriptHealthCheckEnabled", self._old_config, "test")
+        config._set_option("server.scriptHealthCheckEnabled",
+                           self._old_config, "test")
         Server._singleton = None
         super().tearDown()
 
@@ -685,7 +696,8 @@ class ScriptCheckEndpointDoesNotExistTest(tornado.testing.AsyncHTTPTestCase):
         super().setUp()
 
     def tearDown(self):
-        config._set_option("server.scriptHealthCheckEnabled", self._old_config, "test")
+        config._set_option("server.scriptHealthCheckEnabled",
+                           self._old_config, "test")
         Server._singleton = None
         super().tearDown()
 

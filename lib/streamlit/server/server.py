@@ -178,7 +178,8 @@ def start_listening(app: tornado.web.Application) -> None:
     """
 
     http_server = HTTPServer(
-        app, max_buffer_size=config.get_option("server.maxUploadSize") * 1024 * 1024
+        app, max_buffer_size=config.get_option(
+            "server.maxUploadSize") * 1024 * 1024
     )
 
     if server_address_is_unix_socket():
@@ -189,7 +190,7 @@ def start_listening(app: tornado.web.Application) -> None:
 
 def start_listening_unix_socket(http_server: HTTPServer) -> None:
     address = config.get_option("server.address")
-    file_name = os.path.expanduser(address[len(UNIX_SOCKET_PREFIX) :])
+    file_name = os.path.expanduser(address[len(UNIX_SOCKET_PREFIX):])
 
     unix_socket = tornado.netutil.bind_unix_socket(file_name)
     http_server.add_socket(unix_socket)
@@ -255,7 +256,8 @@ class Server:
     def __init__(self, ioloop: IOLoop, script_path: str, command_line: Optional[str]):
         """Create the server. It won't be started yet."""
         if Server._singleton is not None:
-            raise RuntimeError("Server already initialized. Use .get_current() instead")
+            raise RuntimeError(
+                "Server already initialized. Use .get_current() instead")
 
         Server._singleton = self
 
@@ -363,7 +365,7 @@ class Server:
                 dict(server=self),
             ),
             (
-                make_url_path_regex(base, "healthz"),
+                make_url_path_regex(base, "healthk"),
                 HealthHandler,
                 dict(callback=lambda: self.is_ready_for_browser_connection),
             ),
@@ -394,7 +396,8 @@ class Server:
                 AssetsFileHandler,
                 {"path": "%s/" % file_util.get_assets_dir()},
             ),
-            (make_url_path_regex(base, "media/(.*)"), MediaFileHandler, {"path": ""}),
+            (make_url_path_regex(base, "media/(.*)"),
+             MediaFileHandler, {"path": ""}),
             (
                 make_url_path_regex(base, "component/(.*)"),
                 ComponentRequestHandler,
@@ -424,7 +427,8 @@ class Server:
                     (
                         make_url_path_regex(base, "(.*)"),
                         StaticFileHandler,
-                        {"path": "%s/" % static_path, "default_filename": "index.html"},
+                        {"path": "%s/" % static_path,
+                            "default_filename": "index.html"},
                     ),
                     (make_url_path_regex(base, trailing_slash=False), AddSlashHandler),
                 ]
@@ -504,7 +508,8 @@ class Server:
             elif self._state == State.ONE_OR_MORE_BROWSERS_CONNECTED:
                 pass
             else:
-                raise RuntimeError("Bad server state at start: %s" % self._state)
+                raise RuntimeError(
+                    "Bad server state at start: %s" % self._state)
 
             if on_started is not None:
                 on_started(self)
@@ -536,7 +541,8 @@ class Server:
                             try:
                                 self._send_message(session_info, msg)
                             except tornado.websocket.WebSocketClosedError:
-                                self._close_report_session(session_info.session.id)
+                                self._close_report_session(
+                                    session_info.session.id)
                             yield
                         yield
                     yield tornado.gen.sleep(0.01)
@@ -698,7 +704,8 @@ Please report this bug at https://github.com/streamlit/streamlit/issues.
             session = session_info.session
 
             LOGGER.debug(
-                "Reused preheated session for ws %s. Session ID: %s", id(ws), session_id
+                "Reused preheated session for ws %s. Session ID: %s", id(
+                    ws), session_id
             )
 
         else:
@@ -711,7 +718,8 @@ Please report this bug at https://github.com/streamlit/streamlit/issues.
             )
 
             LOGGER.debug(
-                "Created new session for ws %s. Session ID: %s", id(ws), session.id
+                "Created new session for ws %s. Session ID: %s", id(
+                    ws), session.id
             )
 
             assert session.id not in self._session_info_by_id, (
@@ -810,7 +818,8 @@ class _BrowserWebSocketHandler(WebSocketHandler):
             elif msg_type == "clear_cache":
                 self._session.handle_clear_cache_request()
             elif msg_type == "set_run_on_save":
-                self._session.handle_set_run_on_save_request(msg.set_run_on_save)
+                self._session.handle_set_run_on_save_request(
+                    msg.set_run_on_save)
             elif msg_type == "stop_report":
                 self._session.handle_stop_script_request()
             elif msg_type == "close_connection":
